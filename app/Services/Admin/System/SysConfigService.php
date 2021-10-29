@@ -38,6 +38,8 @@ class SysConfigService
         DB::beginTransaction();
         try {
             if (empty($row[$tableName.'property']))  throw new Exception($messagePrefix.'属性不能为空！');
+            if (!preg_match('/^[A-Za-z]{1}/', $row[$tableName.'property']))
+                throw new Exception('属性名必须为英文！');
             if (empty($row[$tableName.'value']))  throw new Exception($messagePrefix.'值不能为空！');
             if (empty($row[$tableName.'remark']))  throw new Exception($messagePrefix.'备注不能为空！');
 

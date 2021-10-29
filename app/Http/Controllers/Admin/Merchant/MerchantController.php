@@ -18,8 +18,8 @@ class MerchantController extends Controller
             'merchant_email' =>  trim($request->input('email', '')),
             'merchant_status' =>  trim($request->input('status', '1')),
         );
-        $merchantId = $request->input('merchant_id', 0);
-        $merchantPassword = $request->input('password');
+        $merchantId = trim($request->input('merchant_id', 0));
+        $merchantPassword = trim($request->input('password'));
 
         $obj = new MerchantService();
         return response()->json($obj->createOrUpdate($row, $merchantId,$merchantPassword));

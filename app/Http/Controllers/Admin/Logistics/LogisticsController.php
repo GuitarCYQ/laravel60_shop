@@ -82,7 +82,7 @@ class LogisticsController extends Controller
      * @return  json
      */
     public static function getLogisticsSearch($company_code,$express_number,$is_newest = 0) {
-        $appkey = env('APP_KEY','');//快递100授权秘钥
+        $appkey = env('APP_KEYS','');//快递100授权秘钥
         $customerCode = env('CUSTOMER_CODE','');//快递100客户code
         $expressCodeUrl = env('GET_EXPRESS_CODE_URL','');//快递公司编码接口地址
         $expressListUrl = env('GET_EXPRESS_LIST_URL');//快递100的快递列表接口

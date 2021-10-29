@@ -35,14 +35,30 @@ class MenuController extends Controller
     }
 
     // 展示菜单列表
-    public function menuList()
+    public function menuList(Request $request)
     {
         $orderBy = ['menu_sort', 'desc'];
         $total = $this->menuModelObj->getByCondition('', 'count(*)');
         $data = $this->menuModelObj->getByCondition('', '*', '', $orderBy);
-        return array('code' => 200, 'message' => '成功', 'total' => $total, 'data' => $data);
+        return response()->json(array('code' => 200, 'message' => '成功', 'total' => $total, 'data' => $data));
     }
 
+    //菜单列表获取顶级模板
+    public function getParentIDs()
+    {
+        $total = $this->menuModelObj->getByCondition(['menu_parent_id' => 0, 'menu_status' => 1], 'count(*)');
+        $data = $this->menuModelObj->getByCondition(['menu_parent_id' => 0, 'menu_status' => 1]);
+        return response()->json(array('code' => 200, 'message' => '成功', 'total' => $total, 'data' => $data));
+    }
+
+    // 管理员给role分配权限时传递给前端展示的数据
+    public function menuShow(Request $request)
+    {
+        $roleId = (int)trim($request->input('roleId'));
+        $menuServiceObj = new MenuService();
+        $ret = $menuServiceObj->menuShow($roleId);
+        return response()->json(array('code' => 200, 'message' => '成功', 'data' => $ret));
+    }
 
 
 }

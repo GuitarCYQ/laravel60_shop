@@ -79,7 +79,6 @@ class UserModel extends Model
                 $query->orWhere('user_name', $condition['name'])->orWhere('user_name_en', $condition['name']);
             });
         }
-
         if ($groupBy) $query->groupBy($groupBy);
 
         switch ($type) {

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin\System;
 
 use App\Http\Controllers\Controller;
 use App\Models\System\UserModel;
+use App\Models\System\UserTokenModel;
 use App\User;
 use Illuminate\Http\Request;
 use App\Services\Admin\System\UserService;
@@ -77,6 +78,17 @@ class UserController extends Controller
         return $resArr;
     }
 
+    //管理员修改user的Action权限
+    public function actionAuthority(Request $request)
+    {
+        $userId = trim($request->input('userID'));
+        $updateActionIDs = $request->input('actionIDs');
+
+        $userServiceObj = new UserService();
+        $res = response()->json($userServiceObj->actionAuthority($userId, $updateActionIDs));
+        return $res;
+    }
+
     //管理员重置密码
     public function resetPassword(Request $request)
     {
@@ -105,11 +117,19 @@ class UserController extends Controller
                 'phone' => trim($request->input('phone')),
                 'password' => trim($request->input('password')),
                 'repassword' => trim($request->input('repassword')),
+                'verifycode' => trim($request->input('verifycode'))
             );
         }
         $userServiceObj = new UserService();
         $res = $userServiceObj->modifyOrForgetPassword($headerKey, $row);
-        return $res;
+        return response()->json($res);
+    }
+
+    // 每隔一段时间删除数据库的token
+    public function delDatabaseToken()
+    {
+        $userTokenModelObj = new UserTokenModel();
+        $userTokenModelObj->delToken();
     }
 
 }

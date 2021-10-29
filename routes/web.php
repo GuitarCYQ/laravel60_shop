@@ -11,6 +11,12 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+Route::namespace('Web\Merchant')
+//    ->middleware('web')
+    ->group(function () {
+        #商户登录
+        Route::post('merchant/merchantLogin', 'MerchantLoginController@login');
+        #商户退出
+        Route::post('merchant/merchantLogout', 'MerchantLoginController@logout');
+    });

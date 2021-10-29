@@ -16,14 +16,6 @@ class MenuModel extends Model
     //
     protected $updateTime = 'menu_update_time';
 
-    /**
-     * 展示所有用户列表
-     */
-    public function selectAll()
-    {
-        $res = DB::table($this->table)->get();
-        return $res;
-    }
 
     /**
      * 创建
@@ -32,7 +24,7 @@ class MenuModel extends Model
      */
     public function create($row = array()) {
         if (empty($row)) return false;
-        $row[$this->createTime] = date('YmdHis');
+        $row[$this->createTime] = date('Y-m-d H:i:s');
         return self::query()->insert($row);
     }
 
@@ -60,28 +52,41 @@ class MenuModel extends Model
      * @param int $pageSize 每页显示数
      * @return array|int
      */
-    public function getByCondition($condition = array(), $type = '*', $groupBy = '', $orderBy = array(), $page = 0, $pageSize = 20) {
+    public function getByCondition($condition = array(), $type = '*', $groupBy = '', $orderBy = ['','desc'], $page = 0, $pageSize = 20) {
+        //表中的字段前缀
+        $tbFieldPre = 'menu_';
+
         DB::connection()->enableQueryLog();
         $query = self::query();
 
-        if (isset($condition[$this->primaryKey]) && !empty($condition['user_id'])) {
-            if (is_array($condition['user_id'])) {
-                $query->whereIn('user_id', $condition['user_id']);
+        if (isset($condition[$tbFieldPre.'status']) && !empty($condition[$tbFieldPre.'status'])) $query->where($tbFieldPre.'status', $condition[$tbFieldPre.'status']);
+
+        if (isset($condition[$tbFieldPre.'parent_id']) && $condition[$tbFieldPre.'parent_id'] >= 0) {
+            if (is_array($condition[$tbFieldPre.'parent_id'])) {
+                $query->whereIn($tbFieldPre.'parent_id', $condition[$tbFieldPre.'parent_id']);
             } else {
-                $query->where('user_id', $condition['user_id']);
+                $query->select($tbFieldPre.'id', $tbFieldPre.'name')->where($tbFieldPre.'parent_id',  $condition[$tbFieldPre.'parent_id']);
             }
         }
-        if (isset($condition['role_name']) && !empty($condition['role_name'])) $query->where('role_name', $condition['role_name']);
-        if (isset($condition['user_name_en']) && !empty($condition['user_name_en'])) $query->where('user_name_en', $condition['user_name_en']);
+        if (isset($condition[$tbFieldPre.'id']) && $condition[$tbFieldPre.'id'] >= 0) {
+            if (is_array($condition[$tbFieldPre.'id'])) {
+                $query->whereIn($tbFieldPre.'id', $condition[$tbFieldPre.'id']);
+            } else {
+                $query->where($tbFieldPre.'id',  $condition[$tbFieldPre.'id']);
+            }
+        }
+
+        //dd(DB::getQueryLog());
+
+
+        if (isset($condition[$tbFieldPre.'name']) && !empty($condition[$tbFieldPre.'name'])) $query->where($tbFieldPre.'name', $condition[$tbFieldPre.'name']);
+        if (isset($condition[$tbFieldPre.'name_en']) && !empty($condition[$tbFieldPre.'name_en'])) $query->orwhere($tbFieldPre.'name_en', $condition[$tbFieldPre.'name_en']);
+
         if (isset($condition['name']) && !empty($condition['name'])) {
             $query->where(function ($query) use ($condition) {
                 $query->orWhere('user_name', $condition['name'])->orWhere('user_name_en', $condition['name']);
             });
         }
-        if (isset($condition['user_phone']) && $condition['user_phone'] !== '') $query->where('user_phone', $condition['user_phone']);
-        if (isset($condition['type']) && $condition['type'] !== '') $query->where('user_type', $condition['type']);
-        if (isset($condition['status']) && $condition['status'] !== '') $query->where('user_status', $condition['status']);
-
         if ($groupBy) $query->groupBy($groupBy);
 
         switch ($type) {
@@ -89,18 +94,21 @@ class MenuModel extends Model
                 $sql = $query->count();
                 break;
             default:
-                if ($orderBy) $query->orderBy(current($orderBy), end($orderBy));
-
+                if ($orderBy[0]){
+                    if ($orderBy[1] == 'asc') {
+                        $query->orderBy(current($orderBy), end($orderBy));
+                    } else {
+                        $query->orderByDesc($orderBy[0]);
+                    }
+                }
                 if ($page > 0 and $pageSize > 0) {
                     $start = ($page - 1) * $pageSize;
                     $query->offset($start)->limit($pageSize);
                 }
-
                 $sql = $query->get($type)->toArray();
                 break;
         }
-//		print_r(DB::getQueryLog());
-//		die();
+//		dd(DB::getQueryLog());
         return $sql;
     }
 

@@ -35,7 +35,6 @@ class SysConfigModel extends Model
     public function toUpdate($row = array(), $id = 0, $fieldName = '') {
         if (empty($row) || $id <= 0) return false;
         $fieldName = !empty($fieldName) ? $fieldName : $this->primaryKey;
-        $row[$this->tablePrefix.'update_time'] = date('Y-m-d H:i:s');
         return DB::table($this->table)->where($fieldName, $id)->update($row);
     }
 
@@ -62,15 +61,7 @@ class SysConfigModel extends Model
         }
 
         if (isset($condition[$this->tablePrefix.'property']) && !empty($condition[$this->tablePrefix.'property'])) $query->where($this->tablePrefix.'property', $condition[$this->tablePrefix.'property']);
-        if (isset($condition[$this->tablePrefix.'name_en']) && !empty($condition[$this->tablePrefix.'name_en'])) $query->orwhere($this->tablePrefix.'name_en', $condition[$this->tablePrefix.'name_en']);
-        if (isset($condition['name']) && !empty($condition['name'])) {
-            $query->where(function ($query) use ($condition) {
-                $query->orWhere('user_name', $condition['name'])->orWhere('user_name_en', $condition['name']);
-            });
-        }
-        if (isset($condition['user_phone']) && $condition['user_phone'] !== '') $query->where('user_phone', $condition['user_phone']);
-        if (isset($condition['type']) && $condition['type'] !== '') $query->where('user_type', $condition['type']);
-        if (isset($condition['status']) && $condition['status'] !== '') $query->where('user_status', $condition['status']);
+
 
         if ($groupBy) $query->groupBy($groupBy);
 

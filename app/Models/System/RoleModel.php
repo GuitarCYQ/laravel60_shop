@@ -9,19 +9,8 @@ class RoleModel extends Model
 {
     // 表名
     protected $table = 'role';
-
     // 主键
     protected $primaryKey = 'role_id';
-
-    /**
-     * 展示所有角色列表
-     */
-    public function selectAll()
-    {
-        //$info=DB::select('select * from role');
-        $res = DB::table($this->table)->get();
-        return $res;
-    }
 
     /**
      * 创建数据
@@ -33,7 +22,6 @@ class RoleModel extends Model
         $row['role_create_time'] = date('YmdHis');
         return self::query()->insert($row);
     }
-
 
     /**
      * 更新
@@ -47,11 +35,6 @@ class RoleModel extends Model
         $fieldName = !empty($fieldName) ? $fieldName : $this->primaryKey;
         $row['role_update_time'] = date('Y-m-d H:i:s');
         return DB::table($this->table)->where($fieldName, $id)->update($row);
-    }
-
-    // 总数
-    public function total() {
-        return self::query()->count();
     }
 
     /**
@@ -75,8 +58,9 @@ class RoleModel extends Model
                 $query->where('user_id', $condition['user_id']);
             }
         }
+
         if (isset($condition['role_name']) && !empty($condition['role_name'])) $query->where('role_name', $condition['role_name']);
-        if (isset($condition['user_name_en']) && !empty($condition['user_name_en'])) $query->where('user_name_en', $condition['user_name_en']);
+        if (isset($condition['role_name_en']) && !empty($condition['role_name_en'])) $query->orwhere('role_name_en', $condition['role_name_en']);
         if (isset($condition['name']) && !empty($condition['name'])) {
             $query->where(function ($query) use ($condition) {
                 $query->orWhere('user_name', $condition['name'])->orWhere('user_name_en', $condition['name']);
@@ -85,8 +69,6 @@ class RoleModel extends Model
         if (isset($condition['user_phone']) && $condition['user_phone'] !== '') $query->where('user_phone', $condition['user_phone']);
         if (isset($condition['type']) && $condition['type'] !== '') $query->where('user_type', $condition['type']);
         if (isset($condition['status']) && $condition['status'] !== '') $query->where('user_status', $condition['status']);
-
-
 
         if ($groupBy) $query->groupBy($groupBy);
 
@@ -101,12 +83,10 @@ class RoleModel extends Model
                     $start = ($page - 1) * $pageSize;
                     $query->offset($start)->limit($pageSize);
                 }
-
                 $sql = $query->get($type)->toArray();
                 break;
         }
-//		print_r(DB::getQueryLog());
-//		die();
+		//dd(DB::getQueryLog());
         return $sql;
     }
 

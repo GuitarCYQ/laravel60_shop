@@ -1,19 +1,17 @@
 <?php
 
-namespace App\Models\Merchant;
+namespace App\Models\Order;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class MerchantModel extends Model
+class OrderModel extends Model
 {
     //表名
-    protected $table = 'merchant';
+    protected $table = 'order';
 
     //主键
-    protected $primaryKey = 'merchant_id';
-
-
+    protected $primaryKey = 'order_id';
 
     /**
      * 创建
@@ -23,7 +21,7 @@ class MerchantModel extends Model
     public function toCreate($row = array())
     {
         if (empty($row)) return false;
-        $row['merchant_create_time'] = date('Y-m-d H:i:s');
+        $row['order_create_time'] = date('Y-m-d H:i:s');
         return self::query()->insert($row);
     }
 
@@ -38,7 +36,7 @@ class MerchantModel extends Model
     {
         if (empty($row) || $value <= 0) return false;
         $fieldName = !empty($fieldName) ? $fieldName : $this->primaryKey;
-        $row['merchant_update_time'] = date('Y-m-d H:i:s');
+        $row['order_update_time'] = date('Y-m-d H:i:s');
         return DB::table($this->table)->where($fieldName, $value)->update($row);
     }
 
@@ -65,23 +63,16 @@ class MerchantModel extends Model
         DB::connection()->enableQueryLog();
         $query = self::query();
 
-        if (isset($condition['merchant_id']) && !empty($condition['merchant_id']))
+        if (isset($condition['order_id']) && !empty($condition['order_id']))
         {
-            if (is_array($condition['merchant_id'])) {
-                $query->whereIn('merchant_id', $condition['merchant_id']);
+            if (is_array($condition['order_id'])) {
+                $query->whereIn('order_id', $condition['order_id']);
             } else {
-                $query->where('merchant_id', $condition['merchant_id']);
+                $query->where('order_id', $condition['order_id']);
             }
         }
-        if (isset($condition['merchant_name']) && !empty($condition['merchant_name'])) $query->where('merchant_name', $condition['merchant_name']);
-        if (isset($condition['merchant_name_en']) && !empty($condition['merchant_name_en'])) $query->where('merchant_name_en', $condition['merchant_name_en']);
-        if (isset($condition['name']) && !empty($condition['name'])) {
-            $query->where(function ($query) use ($condition) {
-                $query->orWhere('merchant_name', $condition['name'])->orWhere('merchant_name_en', 'like', $condition['name']);
-            });
-        }
-        if (isset($condition['merchant_phone']) && !empty($condition['merchant_phone'])) $query->where('merchant_phone', $condition['merchant_phone']);
-        if (isset($condition['status']) && $condition['status'] !== '') $query->where('user_status', $condition['status']);
+        if (isset($condition['code']) && !empty($condition['code'])) $query->where('order_code', $condition['code']);
+        if (isset($condition['status']) && $condition['status'] !== '') $query->where('order_status', $condition['status']);
         if ($groupBy) $query->groupBy($groupBy);
 
         switch ($type) {
@@ -103,9 +94,4 @@ class MerchantModel extends Model
 
         return  $sql;
     }
-
-
-
-
-
 }

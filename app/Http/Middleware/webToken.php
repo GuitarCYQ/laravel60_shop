@@ -3,11 +3,12 @@
 namespace App\Http\Middleware;
 
 use App\Models\System\ActionModel;
-use App\Models\System\UserActionAuthorityModel;
+use App\Models\System\Authority\ActionAuthorityModel;
 use App\Models\System\UserTokenModel;
 use Closure;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use App\Services\comment;
 
 class webToken
 {
@@ -20,10 +21,10 @@ class webToken
      */
     public function handle($request, Closure $next)
     {
-
+//        $n = new comment();
+//        $n->as = 1;
         try {
             #token
-
             $token = trim($request->header('token'));
             $key = trim($request->header('key'));
             if (!$token || !$key) throw new Exception('未设置TOKEN或KEY');
@@ -34,9 +35,9 @@ class webToken
                 throw new Exception('TOKEN或KEY不正确');
             }
 
-            #action
+            #判断当前user是否具有当前Action权限
             $user_id = $check[0]['user_id'];
-            $uses = new UserActionAuthorityModel();
+            $uses = new ActionAuthorityModel();
             $action_id = $uses->getByCondition(array('user_id' => $user_id));
             foreach ($action_id as $Key => $value)
             {
@@ -44,18 +45,18 @@ class webToken
             }
             $actionStr = $uses->getActionName();
 
+
             $action = new ActionModel();
             if (!isset($action_ids) || !$action_ids) throw new \Exception('无此账号！');
 
             $sqlActionStr = $action->getByCondition(array('action_id' => $action_ids));
+
             foreach ($sqlActionStr as $key => $value)
             {
                 $sqlActionStrs[] = $value['action_module']. '/' .$value['action_controllers']. '/' .$value['action_method'];
             }
             if (!in_array($actionStr,$sqlActionStrs)) {
-
                 throw new Exception('您没有权限');
-//                return response()->json(['code' => 401, 'message' => '您没有权限']);
             }
         } catch (Exception $e)
         {

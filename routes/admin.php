@@ -114,11 +114,13 @@ Route::namespace('Admin\Merchant')
         #商户地址列表
         Route::get('merchant/merchantAddressList', 'MerchantAddressController@list');
 
+
+
     });
 
 #店铺
 Route::namespace('Admin\Shop')
-//    ->middleware('auth.admin')
+    ->middleware('auth.admin')
     ->group(function () {
 
         #店铺创建或更新
@@ -150,7 +152,7 @@ Route::namespace('Admin\Shop')
 
 # 产品
 Route::namespace('Admin\Product')
-    ->middleware('auth.admin')
+//    ->middleware('auth.admin')
     ->group(function () {
         #产品创建或更新
         Route::post('product/productCreateOrUpdate', 'ProductController@createOrUpdate');
@@ -170,16 +172,22 @@ Route::namespace('Admin\Product')
 
 # 订单
 Route::namespace('Admin\Order')
-    ->middleware('auth.admin')
+//    ->middleware('auth.admin')
     ->group(function () {
+//        #创建或修改
+//        Route::get('order/orderList', 'OrderController@list');
+//        // 查看订单详情
+//        Route::post('order/orderDetail', 'OrderController@orderDetail');
+//        // 修改订单收货信息
+//        Route::post('order/modifyReceivingInfo', 'OrderController@modifyReceivingInfo');
+//        // 修改未付款的订单价格
+//        Route::post('order/modifyPayAmount', 'OrderController@modifyPayAmount');
+
+
+        #订单创建或更新
+        Route::post('order/orderCreateOrUpdate', 'orderController@createOrUpdate');
         #订单列表
-        Route::get('order/orderList', 'OrderController@orderList');
-        // 查看订单详情
-        Route::post('order/orderDetail', 'OrderController@orderDetail');
-        // 修改订单收货信息
-        Route::post('order/modifyReceivingInfo', 'OrderController@modifyReceivingInfo');
-        // 修改未付款的订单价格
-        Route::post('order/modifyPayAmount', 'OrderController@modifyPayAmount');
+        Route::get('order/orderList', 'orderController@list');
     });
 
 # 物流
@@ -192,7 +200,7 @@ Route::namespace('Admin\Logistics')
         Route::get('logistics/logisticsList', 'LogisticsController@list');
         #物流公司列表
         Route::get('logistics/getEc', 'LogisticsController@getEc');
-        #物流消息
+        #物流公司列表
         Route::post('logistics/getLogisticsSearch', 'LogisticsController@getLogisticsSearch');
     });
 

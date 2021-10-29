@@ -23,6 +23,7 @@ class ProductController extends Controller
             'product_status' =>  trim($request->input('status', 1)),
             'key'   =>  trim($request->header('key','')),
         ];
+        var_dump($row);die();
         $productId = $request->get('id', 0);
 
         $obj = new ProductService();

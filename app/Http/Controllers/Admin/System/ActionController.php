@@ -10,6 +10,15 @@ use Illuminate\Http\Request;
 
 class ActionController
 {
+    // 列表
+    public function actionList()
+    {
+        $actionModelObj = new ActionModel();
+        $data = $actionModelObj->getByCondition();
+        $total = $actionModelObj->getByCondition('','count(*)');
+        return array('code' => 200, 'message' => '成功！', 'total' =>$total, 'data' => $data);
+    }
+
     // 创建或更新
     public function createOrUpdate(Request $request)
     {
@@ -26,12 +35,11 @@ class ActionController
         return response()->json($obj->createOrUpdate($row, $actionId));
     }
 
-    // 列表
-    public function actionList()
+    // 管理员分配user权限时传递给前端展示的数据
+    public function actionShow()
     {
-        $actionModelObj = new ActionModel();
-        $data = $actionModelObj->getByCondition();
-        $total = $actionModelObj->getByCondition('','count(*)');
-        return array('code' => 200, 'message' => '成功！', 'total' =>$total, 'data' => $data);
+        $actionServiceObj = new ActionService();
+        $ret = $actionServiceObj->actionShow();
+        return $ret;
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class UserTokenModel extends Model
 {
-    //表面
+    //表名
     protected $table = 'user_token';
 
     //主键
@@ -39,7 +39,6 @@ class UserTokenModel extends Model
     {
         DB::connection()->enableQueryLog();
         $query = self::query();
-
 
 
         if (isset($condition['user_id']) && !empty($condition['user_id'])) $query->where('user_id', $condition['user_id']);
@@ -74,4 +73,30 @@ class UserTokenModel extends Model
         if (empty($user_id)) return false;
         return self::query()->where('user_id', $user_id)->delete();
     }
+
+    // 删除过期的记录
+    public function delToken()
+    {
+        DB::beginTransaction();
+        DB::enableQueryLog();
+        $query = self::query();
+        $ret = $query->select($this->primaryKey, 'create_time')->get()->toArray();
+        if (!$ret) DB::rollBack();
+        // 获取当前时间戳
+        $nowTime = time();
+        foreach ($ret as $value) {
+            // 将数据库中的记录转为时间戳
+            $tokenTime = strtotime($value['create_time']);
+            $existTime = $nowTime - $tokenTime;
+
+            // 如果token存在时间大于该值2*60*60，则从数据库中删除
+            if ($existTime >= 2*60*60){
+                $t = $query->where($this->primaryKey, $value[$this->primaryKey])->delete();
+//                dump(DB::getQueryLog());
+                if (!$t) DB::rollBack();
+                DB::commit();
+            }
+        }
+    }
+
 }
